@@ -99,10 +99,7 @@ const HomeScreen = (props) => {
 
             <FlatList
               data={posts}
-              //onRefresh={loadPosts}           
-              //refreshing={loading}
               renderItem={function ({ item }) {
-
                 return (
                   <View>
                     <Card>

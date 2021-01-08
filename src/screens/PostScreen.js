@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, FlatList, ActivityIndicator, ScrollView, } from "react-native";
+import { View, StyleSheet, FlatList, ActivityIndicator, ScrollView, LogBox } from "react-native";
 import { Card } from "react-native-elements";
 import PostCard from "./../components/PostCard";
 import CommentCard from "./../components/CommentCard";
 import { AuthContext } from "../providers/AuthProvider";
 import DarkThemeHeader from "./../components/DarkThemeHeader";
 import StoreInputData from "../components/StoreInputData";
-
 import { useNetInfo } from "@react-native-community/netinfo";
 import * as firebase from "firebase";
 import "firebase/firestore";
@@ -17,6 +16,7 @@ const PostScreen = (props) => {
     alert("No Internet!");
   }
   const postID = props.route.params.postId;
+  const postData = props.route.params.postData;
   const [posts, setPosts] = useState({
     author:'',
     body:'',
@@ -32,12 +32,13 @@ const PostScreen = (props) => {
     firebase
       .firestore().collection('posts')
       .doc(postID)
-      .onSnapshot((querySnapshot) => {
+      .get()
+      .then((querySnapshot) => {
         let obj = querySnapshot.data();
         let temp_comments = [];
         let postObj = {
           author: obj.author,
-          body: obj.body + '\n\n',
+          body: obj.body,
           title: new Date(obj.created_at.toDate()).toString().slice(0,24)+'(+06)',
           likeCount: obj.likeCount,
         }
@@ -47,7 +48,7 @@ const PostScreen = (props) => {
         setComments(temp_comments);
         setPosts(postObj);
         setLoading(false);
-        console.log(postObj.title)
+        //console.log(postObj.title)
       })
       .catch((error) => {
         setLoading(false);
@@ -55,8 +56,28 @@ const PostScreen = (props) => {
       });
   };
 
+  const createNotification =(type, User)=>{
+    firebase.firestore().collection("users")
+    .doc(postData.userId)
+    .update({
+      notifications: firebase.firestore.FieldValue.arrayUnion({
+        notification_type: type,
+        postId: postID,
+        notification_created_by: User.displayName,
+    })
+    })
+    .then(() => {
+      alert('notification created successfully by: '+ User.displayName
+                    + '\nNotifation type: '+ type);
+    })
+    .catch((error) => {
+      alert(error);
+    });
+  }
+
   useEffect(() => {
     loadIndividualPostDetails();
+    LogBox.ignoreLogs(['Non-serializable values were found in the navigation state']);
   }, []);
 
     return (
@@ -69,12 +90,12 @@ const PostScreen = (props) => {
                 }}
               />
               <Card>
-                <View style={styles.viewStyle2} >
+                <View >
                     <PostCard
                         post_id={postID}
                         author={posts.author}
                         body={posts.body}
-                        post_title={posts.title}
+                        title={posts.title}
                     />
                 </View>
               </Card>
@@ -99,6 +120,9 @@ const PostScreen = (props) => {
                           }),
                         })
                         .then((obj) => {
+                          if(auth.CurrentUser.uid != postID.userId){
+                            createNotification("commented", auth.CurrentUser);
+                          }
                           setLoading(false);
                           alert("Comment created Successfully!\nUserID:"+ auth.CurrentUser.uid+
                           '\nComment:'+ input);
@@ -119,8 +143,6 @@ const PostScreen = (props) => {
                 <Card.Divider />
                   <FlatList
                     data={comments}
-                    //onRefresh={loadIndividualPostDetails}
-                    //refreshing={loading}
                     inverted={true}
                     keyExtractor={(item) => item.time.toString()}
                     renderItem={({ item }) => {
@@ -146,12 +168,7 @@ const PostScreen = (props) => {
 
 const styles = StyleSheet.create({
   viewStyle: {
-    flex: 1,
-  },
-  viewStyle2: {
-    paddingTop:10,
-    paddingBottom:40,
-    height:100,
+    flex: 1, 
   },
 });
 
