@@ -19,6 +19,7 @@ const HomeScreen = (props) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState([]);
+  
 
   const loadPosts = async () => {
     setLoading(true);
@@ -107,6 +108,8 @@ const HomeScreen = (props) => {
                         author={item.data.author}
                         body={item.data.body}
                         title={item.data.created_at.toDate().toDateString().toString()}
+                        item={item}
+                        current_user={auth.CurrentUser}
                       />
                       <Card.Divider />
 

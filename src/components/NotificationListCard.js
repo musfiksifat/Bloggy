@@ -8,12 +8,12 @@ const NotificationListCard = (props) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const loadNotifications = async (ID) => {
+  const loadNotifications = (ID) => {
     setLoading(true);
     firebase
       .firestore()
       .collection('users').doc(ID)
-      .onSnapshot((querySnapshot) => {
+      .get().then((querySnapshot) => {
         let temp_notifications = [];
         let count = 0;
         querySnapshot.data().notifications.forEach((doc) => {

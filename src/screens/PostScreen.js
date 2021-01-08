@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, FlatList, ActivityIndicator, ScrollView, LogBox } from "react-native";
+import { View, StyleSheet, FlatList, ActivityIndicator, ScrollView, Text, LogBox } from "react-native";
 import { Card } from "react-native-elements";
 import PostCard from "./../components/PostCard";
 import CommentCard from "./../components/CommentCard";
@@ -32,8 +32,7 @@ const PostScreen = (props) => {
     firebase
       .firestore().collection('posts')
       .doc(postID)
-      .get()
-      .then((querySnapshot) => {
+      .onSnapshot((querySnapshot) => {
         let obj = querySnapshot.data();
         let temp_comments = [];
         let postObj = {
@@ -98,6 +97,15 @@ const PostScreen = (props) => {
                         title={posts.title}
                     />
                 </View>
+                <Card.Divider/>
+                <View style={{ flexDirection: "row", justifyContent: "space-around" }}>                  
+                    <Text style= {{fontSize:18, color:"#707070"}}> 
+                      {`Total Likes :\t` + posts.likeCount}  
+                    </Text>
+                    <Text style= {{fontSize:18, color:"#707070"}}> 
+                      {`Total Comments :\t` + comments.length}  
+                    </Text>                              
+                </View>
               </Card>
               
               <Card>
@@ -120,12 +128,12 @@ const PostScreen = (props) => {
                           }),
                         })
                         .then((obj) => {
-                          if(auth.CurrentUser.uid != postID.userId){
+                          if(auth.CurrentUser.uid != postData.userId){
                             createNotification("commented", auth.CurrentUser);
                           }
-                          setLoading(false);
+                          setLoading(false); 
                           alert("Comment created Successfully!\nUserID:"+ auth.CurrentUser.uid+
-                          '\nComment:'+ input);
+                            '\nComment:'+ input);                        
                         })
                         .catch((error) => {
                           setLoading(false);

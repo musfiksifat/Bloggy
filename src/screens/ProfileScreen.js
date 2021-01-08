@@ -5,7 +5,6 @@ import { AuthContext } from "../providers/AuthProvider";
 import DarkThemeHeader from "./../components/DarkThemeHeader"
 import * as firebase from "firebase";
 import "firebase/firestore";
-import { Alert } from "react-native";
 
 const ProfileScreen = (props) => {
   return (
@@ -40,15 +39,16 @@ const ProfileScreen = (props) => {
                 title="   Delete My Profile   "
                 titleStyle = {{color:'white', fontSize:15,}}
                 onPress={
-                  async function(){
+                    function(){
                       firebase.firestore()
                       .collection("users")
                       .doc(auth.CurrentUser.uid)
                       .delete()
-                      .then(function() {
-                        Alert("User successfully deleted!");
-                        auth.setIsLoggedIn(false);
-                        auth.setCurrentUser({});    
+                      .then(function() { 
+                        firebase.auth().currentUser.delete();                
+                        auth.setIsLoggedIn(false); 
+                        auth.setCurrentUser({});                    
+                        alert("User successfully deleted!");        
                       })
                       .catch(function(error) {
                         console.error("Error..cant delete user: ", error);
@@ -62,7 +62,7 @@ const ProfileScreen = (props) => {
           <ScrollView style = {styles.BolckStyle}>
             <Card>
             <Text style={styles.textStyle}> {`Student ID :\n\n\t\t`} 
-              <Text style={styles.textStyle2}>{firebase.auth().currentUser.sid} </Text>  
+              <Text style={styles.textStyle2}>{auth.CurrentUser.sid} </Text>  
             </Text>
             <Card.Divider/>
             <Text style={styles.textStyle}> {`Email address:\n\n\t\t`}  
