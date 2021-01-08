@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import { View, StyleSheet, AsyncStorage, Image, Text , ScrollView } from "react-native";
+import { View, StyleSheet, Image, Text , ScrollView } from "react-native";
 import { Card, Button } from "react-native-elements";
 import { AuthContext } from "../providers/AuthProvider";
 import DarkThemeHeader from "./../components/DarkThemeHeader"
+import * as firebase from "firebase";
+import "firebase/firestore";
+import { Alert } from "react-native";
 
 const ProfileScreen = (props) => {
   return (
     <AuthContext.Consumer>
       {(auth) => (
-        <View style={styles.viewStyle}>
-          
+        <View style={styles.viewStyle}>        
           <DarkThemeHeader
               DrawerFunction={() => {
                 props.navigation.toggleDrawer();
@@ -20,16 +22,15 @@ const ProfileScreen = (props) => {
               }}
           />
 
-          <Card>
-            
+          <Card>         
             <View style={{ flexDirection: "column", alignItems: "center", backgroundColor:"white" }}>         
               <Image
-                  source = {require('./../../assets/picture.png')} 
+                  source = {require('./../../assets/user2.png')} 
                   alt = "User picture" 
                   resizeMode = "contain"
                   style = {styles.ImageStyle}
               />
-              <Text style= {{fontSize:28, color:"#707070"}}> {auth.CurrentUser.name}  </Text>
+              <Text style= {{fontSize:28, color:"#707070"}}> {auth.CurrentUser.displayName}  </Text>
             </View> 
               
             <View style={{paddingTop:15, backgroundColor:"white"}}>            
@@ -40,19 +41,28 @@ const ProfileScreen = (props) => {
                 titleStyle = {{color:'white', fontSize:15,}}
                 onPress={
                   async function(){
-                      await removeData(auth.CurrentUser.email);
-                       auth.setIsLoggedIn(false);
+                      firebase.firestore()
+                      .collection("users")
+                      .doc(auth.CurrentUser.uid)
+                      .delete()
+                      .then(function() {
+                        Alert("User successfully deleted!");
+                        auth.setIsLoggedIn(false);
+                        auth.setCurrentUser({});    
+                      })
+                      .catch(function(error) {
+                        console.error("Error..cant delete user: ", error);
+                    });
                   }
                 }
               />
             </View>
-
           </Card>
           
           <ScrollView style = {styles.BolckStyle}>
             <Card>
             <Text style={styles.textStyle}> {`Student ID :\n\n\t\t`} 
-              <Text style={styles.textStyle2}>{auth.CurrentUser.sid} </Text>  
+              <Text style={styles.textStyle2}>{firebase.auth().currentUser.sid} </Text>  
             </Text>
             <Card.Divider/>
             <Text style={styles.textStyle}> {`Email address:\n\n\t\t`}  
@@ -93,9 +103,6 @@ const styles = StyleSheet.create({
     color :'#999FA1',
   },
   BolckStyle : {
-    //backgroundColor:'#EDFDDA',
-    //marginStart:16,
-    //marginEnd:16,
     flexDirection:"column",
     borderColor:"white",
     borderLeftWidth:2,
