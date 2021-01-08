@@ -4,7 +4,7 @@ import { Card, Button, Text, Avatar,} from "react-native-elements";
 
 const PostCard = (props) => {
   return (
-      <View style={{ flex:10 , width:350 }}>    
+      <View style={{ width:350 }}>    
            <View style={{ flexDirection: "row", alignItems: "center", paddingLeft:6}} >     
               <Avatar
                   containerStyle={{ backgroundColor: "#EC8282", marginTop:10 }}
@@ -17,7 +17,7 @@ const PostCard = (props) => {
               </Text>
            </View>
 
-           <View style={{  alignItems: "flex-start", paddingLeft: 27 }}>
+           <View style={{ paddingLeft: 27 }}>
               <Text style={{ fontStyle: "italic" , paddingLeft:20 }}> 
                   {props.title}
               </Text>

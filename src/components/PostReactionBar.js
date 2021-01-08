@@ -87,7 +87,7 @@ const PostReactionBar = (props) => {
                 icon = {<Feather name="message-square" size={24} color="white" />}
                 onPress={() => {
                     console.log(props.post_id);
-                    props.navigation.navigate("PostScreen", {postId: props.post_id});
+                    props.navigation.navigate("PostScreen", {postId: props.post_id, postData: props.post_data});
                 }}
             />
         </View>   

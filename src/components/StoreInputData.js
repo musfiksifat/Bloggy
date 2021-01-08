@@ -15,7 +15,8 @@ const InputCard = (props) => {
         }}
       />
       <Button 
-        buttonStyle = {{backgroundColor:'#37D993', width:310, height:38, borderRadius:8 ,borderColor:'#37D993', alignSelf:"center"}}
+        buttonStyle = {{ backgroundColor:'#37D993', width:310, height:38, 
+                      borderRadius:8 ,borderColor:'#37D993', alignSelf:"center"}}
         title=" Post " 
         type="solid" 
         titleStyle = {{color:'white', fontWeight:"bold", fontSize:18 }}
